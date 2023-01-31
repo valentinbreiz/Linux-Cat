@@ -86,6 +86,7 @@ protected:
     SDL_Renderer* renderer_;
     SDL_Window*   sdl_window_;
     SDL_SysWMinfo sdlSysWMinfo_; // get access to SDLs xdisplay
+    SDL_DisplayMode dm;
 
 public:
     SDLx11() : xdisplay_(NULL), xwindow_(0), renderer_(NULL), sdl_window_(NULL) 

@@ -7,19 +7,31 @@ enum State
     IDLE3,
     IDLE4,
     IDLE5,
-    RUN_LEFT,
-    RUN_RIGHT
+    WALK,
+};
+
+enum Direction
+{
+    LEFT,
+    RIGHT
 };
 
 class Cat
 {
     public:
-        Cat(SDL_Renderer *_renderer)
+        Cat(SDL_Renderer *_renderer, SDL_Window* _window, SDL_DisplayMode _dm)
         {
             renderer = _renderer;
+            window = _window;
+            dm = _dm;
             image = IMG_Load("cat.png");
             texture = SDL_CreateTextureFromSurface(renderer, image);
-            state = State::IDLE5;
+            state = State::WALK;
+            direction = Direction::RIGHT;
+
+            x = dm.w / 3;
+            y = dm.h - 64;
+            SDL_SetWindowPosition(window, dm.w / 2, dm.h - 64);
         }
 
         ~Cat()
@@ -57,15 +69,48 @@ class Cat
                 srcrect = { sprite * 32, 192, 32, 32 };
                 dstrect = { 0, 0, 32, 32 };
             }
+            else if (state == State::WALK && direction == Direction::RIGHT) {
+                sprite = (ticks / SPEED) % 8;
+                srcrect = { sprite * 32, 128, 32, 32 };
+                dstrect = { 0, 0, 32, 32 };
+
+                if (x < dm.w - 32) {
+                    x++;
+                    SDL_SetWindowPosition(window, x, y);
+                }
+                else {
+                    direction = Direction::LEFT;
+                }
+            }
+            else if (state == State::WALK && direction == Direction::LEFT) {
+                sprite = (ticks / SPEED) % 8;
+                srcrect = { sprite * 32, 128, 32, 32 };
+                dstrect = { 0, 0, 32, 32 };
+
+                if (x > 0) {
+                    x--;
+                    SDL_SetWindowPosition(window, x, y);
+                }
+                else {
+                    direction = Direction::RIGHT;
+                }
+            }
         }
 
         void draw()
         {
-            SDL_RenderCopy(renderer, texture, &srcrect, &dstrect);
+            if (direction == Direction::LEFT) {
+                SDL_RenderCopyEx(renderer, texture, &srcrect, &dstrect, 0, NULL, SDL_FLIP_HORIZONTAL);
+            }
+            else if (direction == Direction::RIGHT) {
+                SDL_RenderCopyEx(renderer, texture, &srcrect, &dstrect, 0, NULL, SDL_FLIP_NONE);
+            }
         }
 
     private:
         SDL_Renderer *renderer;
+        SDL_Window* window;
+        SDL_DisplayMode dm;
 
         SDL_Texture *texture;
         SDL_Surface *image;
@@ -78,6 +123,7 @@ class Cat
         int x;
         int y;
         State state;
+        Direction direction;
 };
 
 class MySDLx11App : public SDLx11
@@ -87,14 +133,11 @@ class MySDLx11App : public SDLx11
         {
             SDL_Create("Cat", 0, 0, 32, 32, 0, false, 1.0f);
 
-            SDL_DisplayMode dm;
             if (SDL_GetDesktopDisplayMode(0, &dm) != 0)
             {
                 SDL_Log("SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
                 return quit();
             }
-
-            SDL_SetWindowPosition(sdl_window_, dm.w / 2, dm.h - 64);
         }
 
         void run()
@@ -104,7 +147,7 @@ class MySDLx11App : public SDLx11
 
             init();
 
-            Cat *cat = new Cat(renderer_);
+            Cat *cat = new Cat(renderer_, sdl_window_, dm);
 
             while (!done)
             {
