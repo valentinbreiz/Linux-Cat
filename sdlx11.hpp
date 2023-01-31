@@ -76,6 +76,8 @@ int main(int argc, char** argv)
 #include <SDL2/SDL_syswm.h>
 #include <SDL2/SDL_image.h>
 
+#define SPEED 100
+
 class SDLx11
 {
 protected:

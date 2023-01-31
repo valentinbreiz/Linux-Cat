@@ -3,6 +3,10 @@
 enum State
 {
     IDLE,
+    IDLE2,
+    IDLE3,
+    IDLE4,
+    IDLE5,
     RUN_LEFT,
     RUN_RIGHT
 };
@@ -15,7 +19,7 @@ class Cat
             renderer = _renderer;
             image = IMG_Load("cat.png");
             texture = SDL_CreateTextureFromSurface(renderer, image);
-            state = State::IDLE;
+            state = State::IDLE5;
         }
 
         ~Cat()
@@ -27,10 +31,32 @@ class Cat
         void update()
         {
             ticks = SDL_GetTicks();
-            sprite = (ticks / 100) % 4;
 
-            srcrect = { sprite * 32, 0, 32, 32 };
-            dstrect = { 0, 0, 32, 32 };
+            if (state == State::IDLE) {
+                sprite = (ticks / SPEED) % 4;
+                srcrect = { sprite * 32, 0, 32, 32 };
+                dstrect = { 0, 0, 32, 32 };
+            }
+            else if (state == State::IDLE2) {
+                sprite = (ticks / SPEED) % 4;
+                srcrect = { sprite * 32, 32, 32, 32 };
+                dstrect = { 0, 0, 32, 32 };
+            }
+            else if (state == State::IDLE3) {
+                sprite = (ticks / SPEED) % 4;
+                srcrect = { sprite * 32, 64, 32, 32 };
+                dstrect = { 0, 0, 32, 32 };
+            }
+            else if (state == State::IDLE4) {
+                sprite = (ticks / SPEED) % 4;
+                srcrect = { sprite * 32, 96, 32, 32 };
+                dstrect = { 0, 0, 32, 32 };
+            }
+            else if (state == State::IDLE5) {
+                sprite = (ticks / SPEED) % 4;
+                srcrect = { sprite * 32, 192, 32, 32 };
+                dstrect = { 0, 0, 32, 32 };
+            }
         }
 
         void draw()
