@@ -1,4 +1,6 @@
 #include "sdlx11.hpp"
+#include <random>
+#include <chrono>
 
 enum State
 {
@@ -32,6 +34,8 @@ class Cat
             x = dm.w / 3;
             y = dm.h - 64;
             SDL_SetWindowPosition(window, dm.w / 2, dm.h - 64);
+
+            start_action = std::chrono::steady_clock::now();
         }
 
         ~Cat()
@@ -41,6 +45,107 @@ class Cat
         }
 
         void update()
+        {
+            computeBehavior();
+            updateState();
+        }
+
+        void computeBehavior()
+        {
+            std::random_device rd;
+            std::mt19937 eng(rd());
+            std::uniform_int_distribution<> distr(0, 100);
+            int randomPercent = distr(eng);
+
+            if (state == State::IDLE) {
+                actionDuration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start_action).count();
+                if (actionDuration < minimumIdleTime) {
+                    return;
+                }
+                else {
+                    actionDuration = 0;
+                    start_action = std::chrono::steady_clock::now();
+                }
+            }
+            else if (state == State::IDLE2) {
+                actionDuration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start_action).count();
+                if (actionDuration < minimumIdleTime) {
+                    return;
+                }
+                else {
+                    actionDuration = 0;
+                    start_action = std::chrono::steady_clock::now();
+                }
+            }
+            else if (state == State::IDLE3) {
+                actionDuration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start_action).count();
+                if (actionDuration < minimumIdleTime) {
+                    return;
+                }
+                else {
+                    actionDuration = 0;
+                    start_action = std::chrono::steady_clock::now();
+                }
+            }
+            else if (state == State::IDLE4) {
+                actionDuration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start_action).count();
+                if (actionDuration < minimumIdleTime) {
+                    return;
+                }
+                else {
+                    actionDuration = 0;
+                    start_action = std::chrono::steady_clock::now();
+                }
+            }
+            else if (state == State::IDLE5) {
+                actionDuration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start_action).count();
+                if (actionDuration < minimumSleepTime) {
+                    return;
+                }
+                else {
+                    actionDuration = 0;
+                    start_action = std::chrono::steady_clock::now();
+                }
+            }
+            else if (state == State::WALK) {
+                actionDuration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - start_action).count();
+                if (actionDuration < minimumWalkTime) {
+                    return;
+                }
+                else {
+                    actionDuration = 0;
+                    start_action = std::chrono::steady_clock::now();
+                }
+            }
+
+            // Vérification de la plage de pourcentage pour déterminer l'action à effectuer
+            if (randomPercent < sleepPercent)
+            {
+                state = State::IDLE5;
+            }
+            else if (randomPercent < sleepPercent + walkPercent)
+            {
+                state = State::WALK;
+            }
+            else if (randomPercent < sleepPercent + walkPercent + idlePercent)
+            {
+                state = State::IDLE;
+            }
+            else if (randomPercent < sleepPercent + walkPercent + idlePercent)
+            {
+                state = State::IDLE2;
+            }
+            else if (randomPercent < sleepPercent + walkPercent + idlePercent)
+            {
+                state = State::IDLE3;
+            }
+            else
+            {
+                state = State::IDLE4;
+            }
+        }
+
+        void updateState()
         {
             ticks = SDL_GetTicks();
 
@@ -124,6 +229,18 @@ class Cat
         int y;
         State state;
         Direction direction;
+
+        // Pourcentage d'actions
+        int sleepPercent = 40;
+        int walkPercent = 40;
+        int idlePercent = 30;
+
+        int minimumSleepTime = 20;
+        int minimumWalkTime = 5;
+        int minimumIdleTime = 5;
+
+        int actionDuration;
+        std::chrono::_V2::steady_clock::time_point start_action;
 };
 
 class MySDLx11App : public SDLx11
