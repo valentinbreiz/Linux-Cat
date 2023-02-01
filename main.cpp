@@ -212,6 +212,16 @@ class Cat
             }
         }
 
+        void setState(State _state)
+        {
+            state = _state;
+        }
+
+        State getState()
+        {
+            return state;
+        }
+
     private:
         SDL_Renderer *renderer;
         SDL_Window* window;
@@ -277,6 +287,13 @@ class MySDLx11App : public SDLx11
                         case SDL_QUIT:
                             done = true;
                             break;
+                        case SDL_MOUSEMOTION:
+                        {
+                            if (cat->getState() == State::IDLE5) {
+                                cat->setState(State::IDLE3);
+                            }
+                            break;
+                        }
                     }
                 }
 
